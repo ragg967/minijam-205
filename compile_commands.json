@@ -1,0 +1,6 @@
+[
+{
+  "directory": "/home/rye/projects/c/minijam-205",
+  "arguments": ["/usr/sbin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-D_DEFAULT_SOURCE", "-D_BSD_SOURCE", "-DHAS_FCHOWN", "-DHAS_STICKY_DIR_BIT", "-I", "/home/rye/.xmake/packages/r/raylib/5.5/efaf75c5cc7042868d9f9fc4196a080a/include", "-DNDEBUG", "-o", "build/.objs/minijam-205/linux/x86_64/release/src/main.c.o", "src/main.c"],
+  "file": "src/main.c"
+}]
