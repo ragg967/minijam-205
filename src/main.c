@@ -1,10 +1,12 @@
 #include "raylib.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 #define TEXTURE_SIZE 32.0F
 #define MAX_BULLETS 64
+#define RACERS 24
 
-typedef struct {
+typedef struct Window {
     int height, width;
     char* name;
 } Window;
@@ -15,23 +17,32 @@ Window window = {
     .name = "MiniJam-205",
 };
 
-typedef struct {
+typedef struct Player {
     Vector2 position, center;
-    unsigned int place;
-    float speed;
+    unsigned int place, speed;
     Texture2D texture;
 } Player;
 
-typedef struct {
+typedef struct Bullet {
     Rectangle rectangle;
     float speed;
     bool active;
 } Bullet;
 
-typedef struct {
+typedef struct Bullets {
     Bullet bullets[MAX_BULLETS];
     Texture2D texture;
 } Bullets;
+
+typedef struct Racer {
+    Vector2 position, center;
+    unsigned int place, speed;
+} Racer;
+
+typedef struct Racers {
+    Racer racers[RACERS];
+    Texture2D texture;
+} Racers;
 
 void InitPlayer(Player* player);
 void UpdatePlayer(Player* player);
@@ -42,6 +53,10 @@ void InitBullets(Bullets* bullets);
 void UpdateBullets(Bullets* bullets);
 void DrawBullets(Bullets* bullets);
 void ShootGun(Bullets* bullets, Player* player);
+
+void InitRacers(Racers* racers);
+void DrawRacers(Racers* reacers);
+void UpdateRacers(Racers* racers);
 
 int main(void)
 {
@@ -54,15 +69,20 @@ int main(void)
     Bullets bullets;
     InitBullets(&bullets);
 
+    Racers racers;
+    InitRacers(&racers);
+
     while (!WindowShouldClose()) {
         if (IsKeyPressed(KEY_SPACE))
             ShootGun(&bullets, &player);
-        UpdatePlayer(&player);
         UpdateBullets(&bullets);
+        UpdateRacers(&racers);
+        UpdatePlayer(&player);
 
         BeginDrawing();
         ClearBackground(RAYWHITE);
         DrawBullets(&bullets);
+        DrawRacers(&racers);
         DrawPlayer(&player);
         EndDrawing();
     }
@@ -70,12 +90,41 @@ int main(void)
     CloseWindow();
 }
 
+void UpdateRacers(Racers* racers)
+{
+    for (int i = 0; i < RACERS - 1; i++) {
+        racers->racers[i].position.x += racers->racers[i].speed;
+    }
+}
+
+void DrawRacers(Racers* racers)
+{
+    for (int i = 0; i < RACERS - 1; i++) {
+        DrawTextureV(racers->texture, racers->racers[i].position, WHITE);
+    }
+}
+
+void InitRacers(Racers* racers)
+{
+    for (int i = 0; i < RACERS - 1; i++) {
+        racers->racers[i] = (Racer) {
+            .center = 0,
+            .place = i,
+            .speed = rand() % (6 - 1 + 1) + 1,
+            .position = (Vector2) { 0, 10 + i * ((window.height - 20) / (RACERS - 1)) },
+        };
+    }
+    racers->texture = LoadTexture("assets/Horse.png");
+    if (!IsTextureValid(racers->texture))
+        printf("\033[31mERROR: Racers' (Horse.png) texture could not be loaded\033[0m\n");
+}
+
 void InitPlayer(Player* player)
 {
     player->position = (Vector2) { (float)window.width / 2, (float)window.height / 2 };
     player->center = (Vector2) { player->position.x + (TEXTURE_SIZE / 2), player->position.y + (TEXTURE_SIZE / 2) };
-    player->place = 0;
-    player->speed = 5.0F;
+    player->place = 24;
+    player->speed = 5;
     player->texture = LoadTexture("assets/Horse.png");
     if (!IsTextureValid(player->texture))
         printf("\033[31mERROR: Player (Horse.png) texture could not be loaded\033[0m\n");
